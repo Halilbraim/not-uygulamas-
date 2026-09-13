@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Not + Quiz Uygulamam</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+    color: #eee;
+    overflow-x: hidden;
+    background: #141414;
+  }
+
+  .view { display: none; padding: 30px 40px; animation: fadeIn 0.35s ease; }
+  .view.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- ANA EKRAN ---------- */
+  #homeView { position: relative; min-height: 90vh; }
+
+  .quote-bg {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-family: 'Dancing Script', cursive;
+    font-size: 34px;
+    color: rgba(255,255,255,0.18);
+    max-width: 700px;
+    line-height: 1.5;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+
+  .focus-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #eee;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s ease;
+  }
+  .focus-btn:hover { background: rgba(255,255,255,0.12); }
+
+  #homeView:has(.focus-btn:hover) .quote-bg { opacity: 1; }
+  #homeView:has(.focus-btn:hover) .card-grid {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 760px;
+  } 
+
+  .card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 18px;
+    padding: 28px;
+    cursor: pointer;
+    background: #141414;
+    border: 1px solid rgba(255,255,255,0.35);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(255,255,255,0.7);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+  }
+
+  .card .icon { font-size: 38px; margin-bottom: 12px; }
+  .card h2 { font-size: 20px; margin-bottom: 6px; color: #fff; }
+  .card p { font-size: 13px; opacity: 0.7; }
+
+  /* not kartına özel yazma animasyonu */
+  .card-notes .ink-line {
+    position: absolute;
+    height: 2px;
+    background: rgba(255,255,255,0.5);
+    bottom: 22px;
+    right: 24px;
+    width: 0;
+    transition: width 0.5s ease;
+  }
+  .card-notes:hover .ink-line { width: 70px; }
+
+  .card-notes .pencil {
+    position: absolute;
+    bottom: 26px;
+    right: 20px;
+    font-size: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .card-notes:hover .pencil {
+    opacity: 1;
+    animation: pencilMove 0.9s ease-in-out infinite alternate;
+  }
+  @keyframes pencilMove {
+    from { transform: translate(0, 0) rotate(-25deg); }
+    to   { transform: translate(-70px, -6px) rotate(-25deg); }
+  }
+
+  /* ---------- ORTAK ÜST BAR ---------- */
+  .topbar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .back-btn {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: #eee;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s ease;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.18); }
+  .topbar h2 { font-size: 22px; }
+
+  /* ---------- NOTLAR ---------- */
+  .panel {
+    background: rgba(255,255,255,0.06);
+    border-radius: 18px;
+    padding: 28px;
+    max-width: 620px;
+    backdrop-filter: blur(6px);
+  }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .tab {
+    padding: 8px 18px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.07);
+    color: #ccc;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .tab.active-math { background: #764ba2; color: white; }
+  .tab.active-physics { background: #2193b0; color: white; }
+
+  .formula-toggle { margin-bottom: 12px; font-size: 14px; color: #ccc; }
+
+  .symbol-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .symbol-row button {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .symbol-row button:hover { background: rgba(255,255,255,0.22); }
+
+  .input-row { display: flex; gap: 10px; margin-bottom: 6px; }
+
+  input[type="text"] {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    background: rgba(0,0,0,0.25);
+    color: #fff;
+    transition: border-color 0.2s ease;
+  }
+  input[type="text"]:focus { border-color: #a78bfa; }
+
+  button.primary {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    background: #764ba2;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+  }
+  button.primary:hover { background: #667eea; }
+  button.primary:active { transform: scale(0.96); }
+
+  ul { list-style: none; margin-top: 18px; }
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,0.06);
+    padding: 14px 16px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    animation: slideIn 0.25s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  li button.delete {
+    background: #e74c3c;
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-left: 10px;
+    flex-shrink: 0;
+  }
+  li button.delete:hover { background: #c0392b; }
+
+  .note-text { word-break: break-word; }
+
+  .placeholder {
+    max-width: 620px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 18px;
+    padding: 60px 30px;
+    text-align: center;
+    color: #bbb;
+  }
+  .placeholder .big-icon { font-size: 48px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+  <!-- ANA EKRAN -->
+  <div id="homeView" class="view active">
+    <div class="quote-bg">
+      “Geçmişten öğren, bugün için yaşa, yarın için umut et.”<br>— Albert Einstein
+    </div>
+
+    <div class="home-content">
+      <div class="card-grid">
+        <div class="card card-notes" onclick="showView('notesView')">
+          <div class="icon">📝</div>
+          <h2>Notlar</h2>
+          <p>Matematik ve fizik notlarını formüllerle birlikte tut</p>
+          <div class="ink-line"></div>
+          <div class="pencil">✏️</div>
+        </div>
+        <div class="card card-quiz" onclick="showView('quizView')">
+          <div class="icon">❓</div>
+          <h2>Quiz</h2>
+          <p>Bilgini test et, yanlışlarını çözümüyle gör</p>
+        </div>
+        <div class="card card-game" onclick="showView('gameView')">
+          <div class="icon">🎮</div>
+          <h2>Mini Oyun</h2>
+          <p>Öğrenerek oynayacağın küçük oyunlar</p>
+        </div>
+        <div class="card card-info" onclick="showView('infoView')">
+          <div class="icon">📚</div>
+          <h2>Bilgi Havuzu</h2>
+          <p>En gerekli konu özetleri tek yerde</p>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top: 28px;">
+        <button class="focus-btn">Sadece Arkaplan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTLAR -->
+  <div id="notesView" class="view">
+    <div class="topbar">
+      <button class="back-btn" onclick="showView('homeView')">← Geri</button>
+      <h2>Notlarım</h2>
+    </div>
+
+    <div class="panel">
+      <div class="tabs">
+        <div class="tab active-math" id="tabMatematik" onclick="switchTab('Matematik')">Matematik</div>
+        <div class="tab" id="tabFizik" onclick="switchTab('Fizik')">Fizik</div>
+      </div>
+
+      <div class="formula-toggle">
+        <label><input type="checkbox" id="formulaMode"> Bu bir formül</label>
+      </div>
+
+      <div class="symbol-row" id="symbolRow" style="display: none;"></div>
+
+      <div class="input-row">
+        <input type="text" id="noteInput" placeholder="Bir not yaz...">
+        <button class="primary" onclick="addNote()">Ekle</button>
+      </div>
+
+      <ul id="noteList"></ul>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quizView" class="view">
+    <div class="topbar">
+      <button class="back-btn" onclick="showView('homeView')">← Geri</button>
+      <h2>Quiz</h2>
+    </div>
+    <div class="placeholder">
+      <div class="big-icon">🚧</div>
+      Quiz bölümü yakında burada olacak.
+    </div>
+  </div>
+
+  <!-- MINI OYUN -->
+  <div id="gameView" class="view">
+    <div class="topbar">
+      <button class="back-btn" onclick="showView('homeView')">← Geri</button>
+      <h2>Mini Oyun</h2>
+    </div>
+    <div class="placeholder">
+      <div class="big-icon">🚧</div>
+      Mini oyun bölümü yakında burada olacak.
+    </div>
+  </div>
+
+  <!-- BİLGİ HAVUZU -->
+  <div id="infoView" class="view">
+    <div class="topbar">
+      <button class="back-btn" onclick="showView('homeView')">← Geri</button>
+      <h2>Bilgi Havuzu</h2>
+    </div>
+    <div class="placeholder">
+      <div class="big-icon">🚧</div>
+      Bilgi havuzu bölümü yakında burada olacak.
+    </div>
+  </div>
+
+<script>
+  function showView(viewId) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(viewId).classList.add('active');
+  }
+
+  let currentSubject = 'Matematik';
+
+  const mathSymbols = [
+    { label: 'x²', code: '^{}' },
+    { label: 'x₂', code: '_{}' },
+    { label: 'a/b', code: '\\frac{}{}' },
+    { label: '√', code: '\\sqrt{}' },
+    { label: 'π', code: '\\pi' },
+    { label: '∫', code: '\\int' },
+    { label: 'Σ', code: '\\sum' },
+    { label: '∞', code: '\\infty' },
+  ];
+
+  const physicsSymbols = [
+    { label: 'x²', code: '^{}' },
+    { label: 'a/b', code: '\\frac{}{}' },
+    { label: '→v', code: '\\vec{}' },
+    { label: 'Δ', code: '\\Delta' },
+    { label: 'θ', code: '\\theta' },
+    { label: 'ω', code: '\\omega' },
+    { label: '°', code: '^\\circ' },
+    { label: '∑', code: '\\sum' },
+  ];
+
+  function renderSymbolRow() {
+    const symbols = currentSubject === 'Matematik' ? mathSymbols : physicsSymbols;
+    const row = document.getElementById('symbolRow');
+    row.innerHTML = '';
+    symbols.forEach(s => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = s.label;
+      btn.onclick = () => insertSymbol(s.code);
+      row.appendChild(btn);
+    });
+  }
+
+  function switchTab(subject) {
+    currentSubject = subject;
+    document.getElementById('tabMatematik').classList.toggle('active-math', subject === 'Matematik');
+    document.getElementById('tabFizik').classList.toggle('active-physics', subject === 'Fizik');
+    renderSymbolRow();
+    renderNotes();
+  }
+
+  function insertSymbol(symbol) {
+    const input = document.getElementById('noteInput');
+    const cursorPos = input.selectionStart;
+    const before = input.value.substring(0, cursorPos);
+    const after = input.value.substring(cursorPos);
+    const cursorOffset = symbol.indexOf('{}') !== -1 ? symbol.indexOf('{}') + 1 : symbol.length;
+    input.value = before + symbol + after;
+    input.focus();
+    input.setSelectionRange(cursorPos + cursorOffset, cursorPos + cursorOffset);
+  }
+
+  function loadNotes() {
+    const saved = localStorage.getItem('notes');
+    return saved ? JSON.parse(saved) : [];
+  }
+
+  function saveNotes(notes) {
+    localStorage.setItem('notes', JSON.stringify(notes));
+  }
+
+  function renderNotes() {
+    const allNotes = loadNotes();
+    const list = document.getElementById('noteList');
+    list.innerHTML = '';
+
+    allNotes.forEach((note, index) => {
+      if (note.subject !== currentSubject) return;
+
+      const item = document.createElement('li');
+      const span = document.createElement('span');
+      span.className = 'note-text';
+      span.textContent = note.text;
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete';
+      deleteBtn.textContent = 'Sil';
+      deleteBtn.onclick = () => deleteNote(index);
+
+      item.appendChild(span);
+      item.appendChild(deleteBtn);
+      list.appendChild(item);
+    });
+
+    renderMathInElement(list, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ]
+    });
+  }
+
+  function deleteNote(index) {
+    const notes = loadNotes();
+    notes.splice(index, 1);
+    saveNotes(notes);
+    renderNotes();
+  }
+
+  function addNote() {
+    const input = document.getElementById('noteInput');
+    const isFormula = document.getElementById('formulaMode').checked;
+    let text = input.value.trim();
+    if (text === '') return;
+    if (isFormula) text = '$' + text + '$';
+
+    const notes = loadNotes();
+    notes.push({ text: text, subject: currentSubject });
+    saveNotes(notes);
+
+    input.value = '';
+    renderNotes();
+  }
+
+  document.getElementById('formulaMode').addEventListener('change', function() {
+    document.getElementById('symbolRow').style.display = this.checked ? 'flex' : 'none';
+  });
+
+  renderSymbolRow();
+  renderNotes();
+</script>
+</body>
+</html>
