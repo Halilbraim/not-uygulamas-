@@ -1,314 +1,370 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Not + Quiz Uygulamam</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+<title>VectorLab Studio - Mühendislik Not & Çalışma Portalı</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    min-height: 100vh;
-    color: #eee;
-    overflow-x: hidden;
-    background: #141414;
+  :root {
+    --bg-main: radial-gradient(circle at 20% 20%, #1a103c 0%, #0d0a1a 50%, #05040a 100%);
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --primary: #9333ea;
+    --primary-hover: #7e22ce;
+    --accent: #06b6d4;
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
   }
 
-  .view { display: none; padding: 30px 40px; animation: fadeIn 0.35s ease; }
+  body.theme-emerald {
+    --bg-main: radial-gradient(circle at 20% 20%, #064e3b 0%, #022c22 50%, #011710 100%);
+    --primary: #10b981;
+    --primary-hover: #059669;
+    --accent: #38bdf8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    color: var(--text-main);
+    background: var(--bg-main);
+    background-attachment: fixed;
+    overflow-x: hidden;
+  }
+
+  .view { 
+    display: none; 
+    padding: 30px 40px; 
+    width: 100%;
+    min-height: 100vh;
+    animation: fadeIn 0.25s ease-out; 
+  }
   .view.active { display: block; }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   /* ---------- ANA EKRAN ---------- */
-  #homeView { position: relative; min-height: 90vh; }
+  #homeView.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .app-header-title {
+    font-size: 34px;
+    font-weight: 800;
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, #fff 30%, var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
 
   .quote-bg {
     position: absolute;
-    top: 50%; left: 50%;
+    top: 40%; left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
     font-family: 'Dancing Script', cursive;
-    font-size: 34px;
-    color: rgba(255,255,255,0.18);
-    max-width: 700px;
+    font-size: 38px;
+    color: rgba(255, 255, 255, 0.25);
+    max-width: 750px;
     line-height: 1.5;
     opacity: 0;
-    transition: opacity 0.5s ease;
-    pointer-events: none;
-  }
-
-  .focus-btn {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #eee;
-    padding: 8px 14px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: background 0.2s ease;
-  }
-  .focus-btn:hover { background: rgba(255,255,255,0.12); }
-
-  #homeView:has(.focus-btn:hover) .quote-bg { opacity: 1; }
-  #homeView:has(.focus-btn:hover) .card-grid {
-    opacity: 0;
-    pointer-events: none;
     transition: opacity 0.4s ease;
+    pointer-events: none;
   }
 
   .card-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 24px;
-    max-width: 760px;
+    max-width: 820px;
+    width: 100%;
+    margin: 0 auto;
+    transition: opacity 0.3s ease;
   } 
 
   .card {
-    position: relative;
-    overflow: hidden;
-    border-radius: 18px;
+    border-radius: 20px;
     padding: 28px;
     cursor: pointer;
-    background: #141414;
-    border: 1px solid rgba(255,255,255,0.35);
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(16px);
+    transition: all 0.25s ease;
   }
 
   .card:hover {
-    transform: translateY(-6px);
-    border-color: rgba(255,255,255,0.7);
-    box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+    transform: translateY(-5deg);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: var(--primary);
+    box-shadow: 0 16px 32px rgba(0,0,0,0.4);
   }
 
   .card .icon { font-size: 38px; margin-bottom: 12px; }
-  .card h2 { font-size: 20px; margin-bottom: 6px; color: #fff; }
-  .card p { font-size: 13px; opacity: 0.7; }
+  .card h2 { font-size: 20px; margin-bottom: 6px; color: #fff; font-weight: 700; }
+  .card p { font-size: 13px; color: var(--text-muted); }
 
-  /* not kartına özel yazma animasyonu */
-  .card-notes .ink-line {
-    position: absolute;
-    height: 2px;
-    background: rgba(255,255,255,0.5);
-    bottom: 22px;
-    right: 24px;
-    width: 0;
-    transition: width 0.5s ease;
-  }
-  .card-notes:hover .ink-line { width: 70px; }
-
-  .card-notes .pencil {
-    position: absolute;
-    bottom: 26px;
-    right: 20px;
-    font-size: 20px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  .card-notes:hover .pencil {
-    opacity: 1;
-    animation: pencilMove 0.9s ease-in-out infinite alternate;
-  }
-  @keyframes pencilMove {
-    from { transform: translate(0, 0) rotate(-25deg); }
-    to   { transform: translate(-70px, -6px) rotate(-25deg); }
+  .home-bottom-bar {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 36px;
+    flex-wrap: wrap;
   }
 
-  /* ---------- ORTAK ÜST BAR ---------- */
-  .topbar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .action-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+    padding: 10px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .action-btn:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2deg); }
+
+  #homeView:has(.focus-btn:hover) .quote-bg { opacity: 1; }
+  #homeView:has(.focus-btn:hover) .card-grid { opacity: 0; pointer-events: none; }
+  #homeView:has(.focus-btn:hover) .app-header-title { opacity: 0; }
+
+  /* ---------- PANEL & ÜST BAR ---------- */
+  .topbar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; max-width: 850px; margin-left: auto; margin-right: auto; }
   .back-btn {
-    background: rgba(255,255,255,0.08);
-    border: none;
-    color: #eee;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
     padding: 8px 16px;
     border-radius: 10px;
     cursor: pointer;
-    font-size: 14px;
-    transition: background 0.2s ease;
+    font-size: 13px;
+    font-weight: 600;
   }
-  .back-btn:hover { background: rgba(255,255,255,0.18); }
-  .topbar h2 { font-size: 22px; }
+  .back-btn:hover { background: rgba(255,255,255,0.1); }
 
-  /* ---------- NOTLAR ---------- */
   .panel {
-    background: rgba(255,255,255,0.06);
-    border-radius: 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
     padding: 28px;
-    max-width: 620px;
-    backdrop-filter: blur(6px);
+    max-width: 850px;
+    margin: 0 auto;
+    backdrop-filter: blur(20px);
   }
 
-  .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
   .tab {
-    padding: 8px 18px;
+    padding: 8px 16px;
     border-radius: 10px;
-    background: rgba(255,255,255,0.07);
-    color: #ccc;
+    background: rgba(255,255,255,0.05);
+    color: var(--text-muted);
     cursor: pointer;
-    font-size: 14px;
-    transition: background 0.2s ease, color 0.2s ease;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
   }
-  .tab.active-math { background: #764ba2; color: white; }
-  .tab.active-physics { background: #2193b0; color: white; }
+  .tab.active { background: var(--primary); color: white; }
 
-  .formula-toggle { margin-bottom: 12px; font-size: 14px; color: #ccc; }
-
-  .symbol-row {
+  .symbol-row-wrap {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
     margin-bottom: 14px;
+    padding: 10px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    max-height: 160px;
+    overflow-y: auto;
   }
-  .symbol-row button {
-    background: rgba(255,255,255,0.1);
+  .symbol-row-wrap button {
+    background: rgba(255,255,255,0.08);
     color: #fff;
-    border: none;
+    border: 1px solid rgba(255,255,255,0.1);
     padding: 6px 12px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
     transition: background 0.2s ease;
   }
-  .symbol-row button:hover { background: rgba(255,255,255,0.22); }
+  .symbol-row-wrap button:hover { background: rgba(255,255,255,0.22); }
 
-  .input-row { display: flex; gap: 10px; margin-bottom: 6px; }
-
+  .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
   input[type="text"] {
     flex: 1;
     padding: 12px 16px;
-    border: 2px solid rgba(255,255,255,0.15);
+    border: 1px solid var(--card-border);
     border-radius: 10px;
-    font-size: 15px;
+    font-size: 14px;
     outline: none;
-    background: rgba(0,0,0,0.25);
+    background: rgba(0,0,0,0.3);
     color: #fff;
-    transition: border-color 0.2s ease;
   }
-  input[type="text"]:focus { border-color: #a78bfa; }
+  input[type="text"]:focus { border-color: var(--primary); }
 
   button.primary {
     padding: 12px 20px;
     border: none;
     border-radius: 10px;
-    background: #764ba2;
+    background: var(--primary);
     color: white;
-    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s ease, transform 0.1s ease;
   }
-  button.primary:hover { background: #667eea; }
-  button.primary:active { transform: scale(0.96); }
+  button.primary:hover { background: var(--primary-hover); }
 
-  ul { list-style: none; margin-top: 18px; }
-
-  li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255,255,255,0.06);
-    padding: 14px 16px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    animation: slideIn 0.25s ease;
+  ul { list-style: none; margin-top: 14px; }
+  li.note-item {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05);
+    padding: 12px 16px; border-radius: 10px; margin-bottom: 8px;
+    font-size: 14px;
   }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  .note-actions { display: flex; gap: 6px; }
+  .note-btn { background: rgba(255,255,255,0.08); border: none; color: #ccc; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .note-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+  .note-btn.delete:hover { background: #ef4444; color: #fff; }
 
-  li button.delete {
-    background: #e74c3c;
-    border: none;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 13px;
-    cursor: pointer;
-    margin-left: 10px;
-    flex-shrink: 0;
+  /* QUIZ STİLLERİ */
+  .quiz-question { font-size: 17px; font-weight: 600; margin-bottom: 16px; color: #fff; line-height: 1.5; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-opt {
+    padding: 14px 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
+    border-radius: 10px; cursor: pointer; text-align: left; color: #eee; font-size: 14px;
+    transition: all 0.2s ease;
   }
-  li button.delete:hover { background: #c0392b; }
+  .quiz-opt:hover { background: rgba(255,255,255,0.12); transform: translateX(3px); }
 
-  .note-text { word-break: break-word; }
-
-  .placeholder {
-    max-width: 620px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 18px;
-    padding: 60px 30px;
-    text-align: center;
-    color: #bbb;
+  .review-card {
+    background: rgba(0,0,0,0.3); border: 1px solid var(--card-border);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px; text-align: left;
   }
-  .placeholder .big-icon { font-size: 48px; margin-bottom: 16px; }
+  .review-card.correct-border { border-left: 4px solid #10b981; }
+  .review-card.wrong-border { border-left: 4px solid #ef4444; }
+
+  /* MINI GAME STİLLERİ */
+  .game-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+  .game-card {
+    min-height: 85px; background: rgba(255,255,255,0.06); border: 1px solid var(--card-border);
+    border-radius: 12px; display: flex; justify-content: center; align-items: center;
+    font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; padding: 10px;
+    transition: all 0.2s ease; line-height: 1.3;
+  }
+  .game-card:hover { background: rgba(255,255,255,0.12); }
+  .game-card.selected { border-color: var(--primary); background: rgba(147, 51, 234, 0.35); }
+  .game-card.matched { visibility: hidden; opacity: 0; pointer-events: none; }
+
+  /* BİLGİ HAVUZU STİLLERİ */
+  .info-search { width: 100%; padding: 12px 16px; margin-bottom: 14px; border-radius: 10px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.3); color: #fff; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-height: 480px; overflow-y: auto; padding-right: 4px; }
+  .info-card { background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; }
+  .info-card h4 { font-size: 15px; color: var(--accent); margin-bottom: 6px; }
+
+  /* MODAL STİLLERİ */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px);
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s ease; z-index: 1000;
+  }
+  .modal-overlay.active { opacity: 1; pointer-events: auto; }
+  .modal-card {
+    background: #120e24; border: 1px solid var(--card-border); border-radius: 18px;
+    padding: 24px; max-width: 460px; width: 90%; text-align: center;
+  }
 </style>
 </head>
 <body>
 
+  <!-- MODAL İPUCU / BİLDİRİM -->
+  <div id="appModal" class="modal-overlay">
+    <div class="modal-card">
+      <div id="modalIcon" style="font-size: 36px; margin-bottom: 8px;">💡</div>
+      <div id="modalTitle" style="font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #fff;">Zihinsel İpucu</div>
+      <div id="modalBody" style="font-size: 14px; color: var(--text-muted); line-height: 1.5; margin-bottom: 18px;"></div>
+      <button class="primary" style="width: 100%;" onclick="closeModal()">Tamam</button>
+    </div>
+  </div>
+
   <!-- ANA EKRAN -->
   <div id="homeView" class="view active">
+    <div class="app-header-title">VectorLab Studio</div>
+
     <div class="quote-bg">
       “Geçmişten öğren, bugün için yaşa, yarın için umut et.”<br>— Albert Einstein
     </div>
 
-    <div class="home-content">
-      <div class="card-grid">
-        <div class="card card-notes" onclick="showView('notesView')">
-          <div class="icon">📝</div>
-          <h2>Notlar</h2>
-          <p>Matematik ve fizik notlarını formüllerle birlikte tut</p>
-          <div class="ink-line"></div>
-          <div class="pencil">✏️</div>
-        </div>
-        <div class="card card-quiz" onclick="showView('quizView')">
-          <div class="icon">❓</div>
-          <h2>Quiz</h2>
-          <p>Bilgini test et, yanlışlarını çözümüyle gör</p>
-        </div>
-        <div class="card card-game" onclick="showView('gameView')">
-          <div class="icon">🎮</div>
-          <h2>Mini Oyun</h2>
-          <p>Öğrenerek oynayacağın küçük oyunlar</p>
-        </div>
-        <div class="card card-info" onclick="showView('infoView')">
-          <div class="icon">📚</div>
-          <h2>Bilgi Havuzu</h2>
-          <p>En gerekli konu özetleri tek yerde</p>
-        </div>
+    <div class="card-grid">
+      <div class="card" onclick="showView('notesView')">
+        <div class="icon">📝</div>
+        <h2>Notlar & Formüller</h2>
+        <p>Mühendislik notlarını kategorize et ve hızlıca sakla</p>
       </div>
+      <div class="card" onclick="showView('quizView')">
+        <div class="icon">❓</div>
+        <h2>Quiz (20 Soru)</h2>
+        <p>Analiz ve Fizik seviyeni detaylı çözümlerle ölç</p>
+      </div>
+      <div class="card" onclick="showView('gameView')">
+        <div class="icon">🎮</div>
+        <h2>Mini Oyunlar</h2>
+        <p>Formül, D/Y ve İnteraktif Birim Eşleştirme Oyunları</p>
+      </div>
+      <div class="card" onclick="showView('infoView')">
+        <div class="icon">📚</div>
+        <h2>Bilgi Havuzu</h2>
+        <p>45 Temel Mühendislik Sabiti ve Denklemi</p>
+      </div>
+    </div>
 
-      <div style="text-align:center; margin-top: 28px;">
-        <button class="focus-btn">Sadece Arkaplan</button>
-      </div>
+    <div class="home-bottom-bar">
+      <button class="action-btn" onclick="showRandomTip()">💡 İpucu</button>
+      <button class="action-btn focus-btn">👁️ Sadece Arkaplan</button>
+      <button class="action-btn" onclick="toggleTheme()">🎨 Tema Değiştir</button>
+      <button class="action-btn" onclick="toggleFullScreen()">🖥️ Tam Ekran</button>
+      <button class="action-btn" onclick="showStats()">📊 İstatistikler</button>
     </div>
   </div>
 
-  <!-- NOTLAR -->
+  <!-- NOTLAR SAYFASI -->
   <div id="notesView" class="view">
     <div class="topbar">
       <button class="back-btn" onclick="showView('homeView')">← Geri</button>
-      <h2>Notlarım</h2>
+      <h2>Mühendislik Not Defteri</h2>
     </div>
 
     <div class="panel">
       <div class="tabs">
-        <div class="tab active-math" id="tabMatematik" onclick="switchTab('Matematik')">Matematik</div>
-        <div class="tab" id="tabFizik" onclick="switchTab('Fizik')">Fizik</div>
+        <div class="tab active" id="tabMatematik" onclick="switchNoteTab('Matematik')">Matematik</div>
+        <div class="tab" id="tabFizik" onclick="switchNoteTab('Fizik')">Fizik</div>
+        <div class="tab" id="tabYazilim" onclick="switchNoteTab('Yazilim')">Yazılım / C++</div>
+        <div class="tab" id="tabDevreler" onclick="switchNoteTab('Devreler')">Devre Analizi</div>
       </div>
 
-      <div class="formula-toggle">
-        <label><input type="checkbox" id="formulaMode"> Bu bir formül</label>
-      </div>
-
-      <div class="symbol-row" id="symbolRow" style="display: none;"></div>
+      <div class="symbol-row-wrap" id="symbolRow"></div>
 
       <div class="input-row">
-        <input type="text" id="noteInput" placeholder="Bir not yaz...">
+        <input type="text" id="noteSearchInput" placeholder="Kayıtlı notlarda ara..." oninput="renderNotes()">
+      </div>
+
+      <div class="input-row">
+        <input type="text" id="noteInput" placeholder="Yeni bir not veya formül yaz...">
         <button class="primary" onclick="addNote()">Ekle</button>
       </div>
 
@@ -316,39 +372,49 @@
     </div>
   </div>
 
-  <!-- QUIZ -->
+  <!-- QUIZ SAYFASI -->
   <div id="quizView" class="view">
     <div class="topbar">
       <button class="back-btn" onclick="showView('homeView')">← Geri</button>
-      <h2>Quiz</h2>
+      <h2>Mühendislik Quiz Panel</h2>
     </div>
-    <div class="placeholder">
-      <div class="big-icon">🚧</div>
-      Quiz bölümü yakında burada olacak.
+    
+    <div class="panel">
+      <div class="tabs">
+        <div class="tab active" id="quizTabMatematik" onclick="switchQuizSubject('Matematik')">Matematik (10 Soru)</div>
+        <div class="tab" id="quizTabFizik" onclick="switchQuizSubject('Fizik')">Fizik (10 Soru)</div>
+      </div>
+
+      <div id="quizContent"></div>
     </div>
   </div>
 
-  <!-- MINI OYUN -->
+  <!-- MINI OYUN SAYFASI -->
   <div id="gameView" class="view">
     <div class="topbar">
       <button class="back-btn" onclick="showView('homeView')">← Geri</button>
-      <h2>Mini Oyun</h2>
+      <h2>Mühendislik Oyun Alanı</h2>
     </div>
-    <div class="placeholder">
-      <div class="big-icon">🚧</div>
-      Mini oyun bölümü yakında burada olacak.
+    <div class="panel">
+      <div class="tabs">
+        <div class="tab active" id="gTab1" onclick="switchGameMode(1)">Formül Eşleştirme (8 Çift)</div>
+        <div class="tab" id="gTab2" onclick="switchGameMode(2)">Hızlı Doğru / Yanlış (12 Soru)</div>
+        <div class="tab" id="gTab3" onclick="switchGameMode(3)">İnteraktif Birim Eşleştirme</div>
+      </div>
+
+      <div id="gameContent"></div>
     </div>
   </div>
 
-  <!-- BİLGİ HAVUZU -->
+  <!-- BİLGİ HAVUZU SAYFASI -->
   <div id="infoView" class="view">
     <div class="topbar">
       <button class="back-btn" onclick="showView('homeView')">← Geri</button>
-      <h2>Bilgi Havuzu</h2>
+      <h2>Mühendislik Bilgi Kütüphanesi (45 Kayıt)</h2>
     </div>
-    <div class="placeholder">
-      <div class="big-icon">🚧</div>
-      Bilgi havuzu bölümü yakında burada olacak.
+    <div class="panel">
+      <input type="text" id="infoSearch" class="info-search" placeholder="Sabit veya denklem ara (örn: türev, hız, euler, coulomb)..." oninput="filterInfo()">
+      <div id="infoList" class="info-grid"></div>
     </div>
   </div>
 
@@ -356,102 +422,167 @@
   function showView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById(viewId).classList.add('active');
+    window.scrollTo(0, 0);
+    
+    if(viewId === 'quizView') startQuiz();
+    if(viewId === 'gameView') switchGameMode(1);
+    if(viewId === 'infoView') renderInfo();
   }
 
-  let currentSubject = 'Matematik';
+  function toggleTheme() { document.body.classList.toggle('theme-emerald'); }
 
+  function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {
+        openModal("Hata", "Tam ekran moduna geçilemedi.", "⚠️");
+      });
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+    }
+  }
+
+  function openModal(title, body, icon = '💡') {
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('modalBody').innerHTML = body;
+    document.getElementById('modalIcon').innerText = icon;
+    document.getElementById('appModal').classList.add('active');
+  }
+  function closeModal() { document.getElementById('appModal').classList.remove('active'); }
+
+  function showStats() {
+    const notes = loadNotes();
+    const mathCount = notes.filter(n => n.subject === 'Matematik').length;
+    const physCount = notes.filter(n => n.subject === 'Fizik').length;
+    const csCount = notes.filter(n => n.subject === 'Yazilim').length;
+    const devCount = notes.filter(n => n.subject === 'Devreler').length;
+    
+    const bodyHtml = `
+      Toplam Kayıtlı Not Sayısı: <strong>${notes.length}</strong><br><br>
+      • <strong>Matematik:</strong> ${mathCount}<br>
+      • <strong>Fizik:</strong> ${physCount}<br>
+      • <strong>Yazılım / C++:</strong> ${csCount}<br>
+      • <strong>Devre Analizi:</strong> ${devCount}
+    `;
+    openModal("Çalışma İstatistikleri", bodyHtml, "📊");
+  }
+
+  /* KATEGORİLERE GÖRE SEMBOL KÜTÜPHANELERİ */
   const mathSymbols = [
-    { label: 'x²', code: '^{}' },
-    { label: 'x₂', code: '_{}' },
-    { label: 'a/b', code: '\\frac{}{}' },
-    { label: '√', code: '\\sqrt{}' },
-    { label: 'π', code: '\\pi' },
-    { label: '∫', code: '\\int' },
-    { label: 'Σ', code: '\\sum' },
-    { label: '∞', code: '\\infty' },
+    'x²', 'x₂', '½', 'a/b', '√x', 'π', '∫', '∬', '∭', 'Σ', '∏', '∞', '∂', '∇', 'lim',
+    'Δ', 'θ', '±', '∓', '≤', '≥', '≠', '≈', '≡', '∈', '∉', '⊂', '∪', '∩',
+    'f(x)', 'f\'(x)', 'log', 'ln', 'eˣ', 'sin', 'cos', 'tan', 'arcsin', 'arccos', 'arctan',
+    'deg', 'rad', '│x│', 'λ', 'μ', 'σ', 'ε', 'ω'
   ];
 
   const physicsSymbols = [
-    { label: 'x²', code: '^{}' },
-    { label: 'a/b', code: '\\frac{}{}' },
-    { label: '→v', code: '\\vec{}' },
-    { label: 'Δ', code: '\\Delta' },
-    { label: 'θ', code: '\\theta' },
-    { label: 'ω', code: '\\omega' },
-    { label: '°', code: '^\\circ' },
-    { label: '∑', code: '\\sum' },
+    'F', 'm', 'a', 'v', 'v⃗', 'p⃗', 'E_k', 'E_p', 'W', 'P', 'g', 'c', 'h', 'k_B', 'N_A',
+    'μ₀', 'ε₀', 'ρ', 'τ', 'ω', 'θ', 'λ', 'Φ_B', 'B⃗', 'E⃗', 'J', 'Ω', 'Δt', 'Δx',
+    '∫', '∂', '∇', 'x²', '½', 'a/b', '√x', 'π', '∞', '±', '≤', '≥', '≠', '≈', 'γ', 'ħ', 'eV'
   ];
 
+  const yazilimSymbols = [
+    '{ }', '[ ]', '( )', '->', '::', '&&', '||', '!=', '==', '<=', '>=', '<<', '>>',
+    '++', '--', '+=', '-=', '*=', '/=', '%', ';', '&', '*', 'const', 'auto', 'template',
+    'std::', 'nullptr', 'struct', 'class', 'public:', 'private:', 'void', 'int', 'double',
+    'float', 'bool', 'char', 'string', '#include', '#define', '//', '/* */', 'return',
+    'if', 'else', 'for', 'while', 'try-catch'
+  ];
+
+  const devreSymbols = [
+    'V', 'I', 'R', 'C', 'L', 'Z', 'Y', 'P', 'S', 'Q', 'Ω', 'kΩ', 'MΩ', 'µF', 'nF', 'pF',
+    'mH', 'µH', 'j', 'ω', 'ϕ', '∠', 'f₀', 'V_rms', 'I_rms', 'V_pp', 'v(t)', 'i(t)', 'H(s)',
+    's', 'τ', 'KCL', 'KVL', 'GND', 'VCC', 'dB', 'Hz', 'kHz', 'MHz', 'W', 'VA', 'VAR',
+    'di/dt', 'dv/dt', 'AC', 'DC'
+  ];
+
+  const tipsList = [
+    { title: "Zihinsel İpucu", text: "İnsan beyninin yüksek odaklanma süresi ortalama 15-20 dakikadır." },
+    { title: "Analitik Tavsiye", text: "Türev anlık değişim oranını, İntegral ise bu değişimlerin toplam alanını verir." },
+    { title: "Çalışma Stratejisi", text: "Fizik problemlerinde serbest cisim diyagramı çizmek hatayı %80 azaltır." },
+    { title: "Devre Analizi İpucu", text: "Karmaşık sayılarda j² = -1 tanımsızlığı AC devre analizinin anahtarıdır." },
+    { title: "Matematik Stratejisi", text: "Diferansiyel denklemler doğadaki değişimlerin matematiksel dilidir." },
+    { title: "Yazılım İpucu", text: "C++ dilinde belleği verimli kullanmak için göstericileri (pointers) doğru yönetmelisin." },
+    { title: "Fizik İpucu", text: "Kirchhoff Akım Yasası (KCL) yükün korunumunun devrelerdeki karşılığıdır." },
+    { title: "Mühendislik Stratejisi", text: "Problem çözerken birim analizi yapmak formül hatalarını anında fark ettirir." }
+  ];
+
+  function showRandomTip() { 
+    const tip = tipsList[Math.floor(Math.random() * tipsList.length)];
+    openModal(tip.title, tip.text, "💡"); 
+  }
+
+  /* ---------- NOT TUTMA MODÜLÜ ---------- */
+  let currentNoteSubject = 'Matematik';
+
   function renderSymbolRow() {
-    const symbols = currentSubject === 'Matematik' ? mathSymbols : physicsSymbols;
     const row = document.getElementById('symbolRow');
     row.innerHTML = '';
-    symbols.forEach(s => {
+    
+    let symbols = mathSymbols;
+    if (currentNoteSubject === 'Fizik') symbols = physicsSymbols;
+    else if (currentNoteSubject === 'Yazilim') symbols = yazilimSymbols;
+    else if (currentNoteSubject === 'Devreler') symbols = devreSymbols;
+
+    symbols.forEach(sym => {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.textContent = s.label;
-      btn.onclick = () => insertSymbol(s.code);
+      btn.textContent = sym;
+      btn.onclick = () => insertSymbol(sym);
       row.appendChild(btn);
     });
   }
 
-  function switchTab(subject) {
-    currentSubject = subject;
-    document.getElementById('tabMatematik').classList.toggle('active-math', subject === 'Matematik');
-    document.getElementById('tabFizik').classList.toggle('active-physics', subject === 'Fizik');
+  function switchNoteTab(subject) {
+    currentNoteSubject = subject;
+    document.querySelectorAll('#notesView .tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab' + subject).classList.add('active');
     renderSymbolRow();
     renderNotes();
   }
 
-  function insertSymbol(symbol) {
+  function insertSymbol(sym) {
     const input = document.getElementById('noteInput');
     const cursorPos = input.selectionStart;
-    const before = input.value.substring(0, cursorPos);
-    const after = input.value.substring(cursorPos);
-    const cursorOffset = symbol.indexOf('{}') !== -1 ? symbol.indexOf('{}') + 1 : symbol.length;
-    input.value = before + symbol + after;
+    input.value = input.value.substring(0, cursorPos) + sym + input.value.substring(cursorPos);
     input.focus();
-    input.setSelectionRange(cursorPos + cursorOffset, cursorPos + cursorOffset);
+    const newPos = cursorPos + sym.length;
+    input.setSelectionRange(newPos, newPos);
   }
 
-  function loadNotes() {
-    const saved = localStorage.getItem('notes');
-    return saved ? JSON.parse(saved) : [];
-  }
-
-  function saveNotes(notes) {
-    localStorage.setItem('notes', JSON.stringify(notes));
-  }
+  function loadNotes() { return JSON.parse(localStorage.getItem('notes_v3') || '[]'); }
+  function saveNotes(notes) { localStorage.setItem('notes_v3', JSON.stringify(notes)); }
 
   function renderNotes() {
     const allNotes = loadNotes();
+    const searchQuery = document.getElementById('noteSearchInput').value.toLowerCase();
     const list = document.getElementById('noteList');
     list.innerHTML = '';
 
-    allNotes.forEach((note, index) => {
-      if (note.subject !== currentSubject) return;
+    const filtered = allNotes.filter(n => n.subject === currentNoteSubject && n.text.toLowerCase().includes(searchQuery));
 
+    if(filtered.length === 0) {
+      list.innerHTML = '<li style="color:var(--text-muted); justify-content:center; padding:20px;">Bu kategoride henüz not bulunmuyor.</li>';
+      return;
+    }
+
+    filtered.forEach((note, index) => {
       const item = document.createElement('li');
-      const span = document.createElement('span');
-      span.className = 'note-text';
-      span.textContent = note.text;
-
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'delete';
-      deleteBtn.textContent = 'Sil';
-      deleteBtn.onclick = () => deleteNote(index);
-
-      item.appendChild(span);
-      item.appendChild(deleteBtn);
+      item.className = 'note-item';
+      item.innerHTML = `
+        <span>${note.text}</span>
+        <div class="note-actions">
+          <button class="note-btn" onclick="copyNoteText('${encodeURIComponent(note.text)}')">Kopyala</button>
+          <button class="note-btn delete" onclick="deleteNote(${index})">Sil</button>
+        </div>
+      `;
       list.appendChild(item);
     });
+  }
 
-    renderMathInElement(list, {
-      delimiters: [
-        { left: '$$', right: '$$', display: true },
-        { left: '$', right: '$', display: false }
-      ]
-    });
+  function copyNoteText(encodedText) {
+    const text = decodeURIComponent(encodedText);
+    navigator.clipboard.writeText(text);
+    openModal("Kopyalandı", "Not panoya kopyalandı: <strong>" + text + "</strong>", "📋");
   }
 
   function deleteNote(index) {
@@ -463,22 +594,291 @@
 
   function addNote() {
     const input = document.getElementById('noteInput');
-    const isFormula = document.getElementById('formulaMode').checked;
     let text = input.value.trim();
-    if (text === '') return;
-    if (isFormula) text = '$' + text + '$';
-
+    if (!text) return;
+    
     const notes = loadNotes();
-    notes.push({ text: text, subject: currentSubject });
+    notes.push({ text: text, subject: currentNoteSubject });
     saveNotes(notes);
-
     input.value = '';
     renderNotes();
   }
 
-  document.getElementById('formulaMode').addEventListener('change', function() {
-    document.getElementById('symbolRow').style.display = this.checked ? 'flex' : 'none';
-  });
+  /* ---------- QUIZ MODÜLÜ ---------- */
+  const quizData = {
+    Matematik: [
+      { question: "f(x) = e²ˣ · cos(x) fonksiyonunun x = 0 noktasındaki türevi f'(0) kaçtır?", options: ["1", "2", "0", "-1"], correct: 1, explanation: "Çarpım türevi kuralı: f'(x) = 2e²ˣcos(x) - e²ˣsin(x). x=0 koyulunca f'(0) = 2(1)(1) - 0 = 2 elde edilir." },
+      { question: "∫ sin²(x) dx integralinin 0'dan π'ye belirli integral sonucu nedir?", options: ["π/4", "π", "π/2", "0"], correct: 2, explanation: "sin²(x) = (1 - cos(2x))/2 dönüşümü yapılır. İntegral alındığında sonuç π/2 çıkar." },
+      { question: "y'' - 4y = 0 diferansiyel denkleminin genel çözümü nedir?", options: ["c₁e²ˣ + c₂e⁻²ˣ", "c₁cos(2x) + c₂sin(2x)", "c₁e⁴ˣ", "c₁x²"], correct: 0, explanation: "Karakteristik denklem r² - 4 = 0 => r = ±2. Çözüm c₁e²ˣ + c₂e⁻²ˣ şeklindedir." },
+      { question: "lim (x→0) [tan(3x) / x] limitinin değeri kaçtır?", options: ["1", "3", "0", "Tanımsız"], correct: 1, explanation: "Trigonometrik limit kuralından lim(x→0) [tan(ax)/bx] = a/b => 3/1 = 3." },
+      { question: "z = 3 + 4j karmaşık sayısının modülü |z| kaçtır?", options: ["5", "7", "25", "1"], correct: 0, explanation: "Modül |z| = √(Re² + Im²) = √(3² + 4²) = √25 = 5." }
+    ],
+    Fizik: [
+      { question: "m kütleli cisim v hızıyla yayı x kadar sıkıştırıyor. Yay sabiti k nedir?", options: ["mv / x", "m·v² / x²", "2mv / x²", "m·v² / 2x"], correct: 1, explanation: "Enerji korunumu: ½m·v² = ½k·x² => k = m·v² / x²." },
+      { question: "Lorentz manyetik kuvveti dik açıda hangi formülle hesaplanır?", options: ["q · v · B", "q·v / B", "q·v²·B", "0"], correct: 0, explanation: "Dik açıda sin(90°)=1 olduğundan manyetik kuvvet F = q · v · B olur." }
+    ]
+  };
+
+  let currentQuizSubject = 'Matematik';
+  let quizIndex = 0;
+  let userAnswers = [];
+
+  function switchQuizSubject(subject) {
+    currentQuizSubject = subject;
+    document.getElementById('quizTabMatematik').classList.toggle('active', subject === 'Matematik');
+    document.getElementById('quizTabFizik').classList.toggle('active', subject === 'Fizik');
+    startQuiz();
+  }
+
+  function startQuiz() { quizIndex = 0; userAnswers = []; renderQuizQuestion(); }
+
+  function renderQuizQuestion() {
+    const questions = quizData[currentQuizSubject];
+    const box = document.getElementById('quizContent');
+
+    if (quizIndex >= questions.length) {
+      let correctCount = userAnswers.filter(a => a.isCorrect).length;
+      let reviewHTML = userAnswers.map((a, i) => `
+        <div class="review-card ${a.isCorrect ? 'correct-border' : 'wrong-border'}">
+          <div style="font-weight:700; margin-bottom:6px; color:#fff;">Soru ${i+1}: ${a.q.question}</div>
+          <div style="font-size:13px; margin-bottom:4px; color:${a.isCorrect ? '#10b981' : '#ef4444'};">
+            Senin Cevabın: <strong>${a.q.options[a.selected]}</strong> ${a.isCorrect ? '✓ (Doğru)' : '✗ (Yanlış)'}
+          </div>
+          ${!a.isCorrect ? `<div style="font-size:13px; color:#10b981; margin-bottom:4px;">Doğru Cevap: <strong>${a.q.options[a.q.correct]}</strong></div>` : ''}
+          <div style="font-size:13px; color:var(--text-muted); margin-top:8px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.06);">
+            <strong>Çözüm Açıklaması:</strong> ${a.q.explanation}
+          </div>
+        </div>
+      `).join('');
+
+      box.innerHTML = `
+        <div style="text-align:center; padding: 10px 0;">
+          <h3 style="font-size:22px; color:var(--primary); margin-bottom:6px;">Test Bitti! Sonuç: ${correctCount} / ${questions.length} Doğru</h3>
+          <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">Aşağıda detaylı çözümleri inceleyebilirsin:</p>
+          <div style="max-height: 440px; overflow-y: auto; margin-bottom:20px; padding-right:6px;">${reviewHTML}</div>
+          <button class="primary" onclick="startQuiz()">Testi Yeniden Başlat</button>
+        </div>
+      `;
+      return;
+    }
+
+    const q = questions[quizIndex];
+    let optionsHTML = q.options.map((opt, idx) => `<button class="quiz-opt" onclick="checkAnswer(${idx})">${opt}</button>`).join('');
+
+    box.innerHTML = `
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">Soru ${quizIndex + 1} / ${questions.length}</div>
+      <div class="quiz-question">${q.question}</div>
+      <div class="quiz-options">${optionsHTML}</div>
+    `;
+  }
+
+  function checkAnswer(selectedIndex) {
+    const q = quizData[currentQuizSubject][quizIndex];
+    userAnswers.push({ q: q, selected: selectedIndex, isCorrect: selectedIndex === q.correct });
+    quizIndex++;
+    renderQuizQuestion();
+  }
+
+  /* ---------- DETAYLANDIRILMIŞ 3 OYUN MODÜLÜ ---------- */
+  function switchGameMode(mode) {
+    document.querySelectorAll('#gameView .tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('gTab' + mode).classList.add('active');
+
+    if(mode === 1) initMatchingGame();
+    if(mode === 2) initTrueFalseGame();
+    if(mode === 3) initUnitsGame();
+  }
+
+  // OYUN 1: FORMÜL EŞLEŞTİRME (8 ÇİFT / 16 KART)
+  function initMatchingGame() {
+    const data = [
+      { id: 1, text: "Kuvvet", pair: 101 }, { id: 101, text: "F = m · a", pair: 1 },
+      { id: 2, text: "Kinetik Enerji", pair: 102 }, { id: 102, text: "E = ½m·v²", pair: 2 },
+      { id: 3, text: "Açısal Hız", pair: 103 }, { id: 103, text: "ω = dθ/dt", pair: 3 },
+      { id: 4, text: "Ohm Yasası", pair: 104 }, { id: 104, text: "V = I · R", pair: 4 },
+      { id: 5, text: "Foton Enerjisi", pair: 105 }, { id: 105, text: "E = h · f", pair: 5 },
+      { id: 6, text: "Yay Potansiyeli", pair: 106 }, { id: 106, text: "E = ½k·x²", pair: 6 },
+      { id: 7, text: "Coulomb Yasası", pair: 107 }, { id: 107, text: "F = k·|q₁q₂|/r²", pair: 7 },
+      { id: 8, text: "Dönme Enerjisi", pair: 108 }, { id: 108, text: "E_k = ½I·ω²", pair: 8 }
+    ];
+    
+    let selected = [];
+    let matchedPairs = 0;
+    const container = document.getElementById('gameContent');
+    container.innerHTML = '<div style="margin-bottom:10px; font-size:13px; color:var(--text-muted);">Bulunan Eşleşme: <strong id="mCount" style="color:var(--accent);">0</strong> / 8</div><div id="gGrid" class="game-grid"></div>';
+    
+    const grid = document.getElementById('gGrid');
+    [...data].sort(() => 0.5 - Math.random()).forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'game-card';
+      card.innerText = c.text;
+      card.onclick = () => {
+        if(selected.length < 2 && !card.classList.contains('selected') && !card.classList.contains('matched')) {
+          card.classList.add('selected');
+          selected.push({ elem: card, item: c });
+          
+          if(selected.length === 2) {
+            if(selected[0].item.pair === selected[1].item.id) {
+              selected[0].elem.classList.add('matched');
+              selected[1].elem.classList.add('matched');
+              selected = [];
+              matchedPairs++;
+              document.getElementById('mCount').innerText = matchedPairs;
+              if(matchedPairs === 8) {
+                setTimeout(() => openModal("Harika İş!", "Tüm 8 formül çiftini başarıyla eşleştirdin! 🎉", "🏆"), 300);
+              }
+            } else {
+              setTimeout(() => {
+                selected[0].elem.classList.remove('selected');
+                selected[1].elem.classList.remove('selected');
+                selected = [];
+              }, 600);
+            }
+          }
+        }
+      };
+      grid.appendChild(card);
+    });
+  }
+
+  // OYUN 2: HIZLI DOĞRU / YANLIŞ (12 DETAYLI SORU)
+  const tfQuestions = [
+    { q: "Işık hızı vakum ortamında sabittir (c ≈ 3×10⁸ m/s).", a: true, exp: "Işık hızı evrensel bir sabittir ve gözlemcinin hareketinden bağımsızdır." },
+    { q: "Türev bir eğrinin altında kalan toplam alanı hesaplar.", a: false, exp: "Yanlış! Eğri altındaki alanı İntegral hesaplar; Türev ise anlık değişim oranını ve teğetin eğimini verir." },
+    { q: "Kirchhoff Akım Yasasına (KCL) göre bir düğüme giren akımlar toplamı çıkanlara eşittir.", a: true, exp: "Doğru! Bu kural yükün korunum kanununun elektrik devrelerindeki doğrudan karşılığıdır." },
+    { q: "Bir kondansatörün elektrik alanında depoladığı enerji E = ½C·V² formülüyle hesaplanır.", a: true, exp: "Doğru! Sığası C ve gerilimi V olan kondansatörün depoladığı enerji formülüdür." },
+    { q: "C++ dilinde 'new' anahtar kelimesiyle ayrılan bellek 'delete' ile serbest bırakılmazsa bellek sızıntısı (Memory Leak) oluşur.", a: true, exp: "Doğru! Heap bellek bölgesindeki dinamik veriler manuel serbest bırakılmalıdır." },
+    { question: "Vektörel dış çarpımın (A × B) büyüklüğü iki vektörün arasındaki açının kosinüsüyle doğru orantılıdır.", a: false, exp: "Yanlış! Vektörel çarpım açının Sinüsü ile (|A||B|sinθ), Skaler iç çarpım (A · B) Kosinüsü ile orantılıdır." },
+    { q: "Bernoulli denklemi sürtünmesiz akışkanlarda birim hacimdeki toplam enerjinin korunumunu ifade eder.", a: true, exp: "Doğru! Statik basınç, dinamik basınç ve yükseklik enerjisi toplamı sabittir." },
+    { q: "İdeal bir bobin (Endüktör) doğru akımda (DC) kararlı durumda açık devre gibi davranır.", a: false, exp: "Yanlış! Bobin kararlı DC akımda kısa devre (düz tel) gibi davranır; Kondansatör açık devre gibi davranır." },
+    { q: "Euler Özdeşliği e^(jπ) + 1 = 0 matematiğin en temel 5 sabitini (e, j, π, 1, 0) birleştirir.", a: true, exp: "Doğru! Kompleks analizdeki Euler formülünde θ = π yazılarak elde edilir." },
+    { q: "Coulomb kuvveti iki noktasal yük arasındaki uzaklıkla doğru orantılıdır.", a: false, exp: "Yanlış! Coulomb kuvveti F = k·|q₁q₂|/r² uyarınca uzaklığın KARESİYLE TERS orantılıdır." },
+    { q: "Op-Amp (Operasyonel Yükselteç) ideal şartlarda sonsuz giriş empedansına sahiptir.", a: true, exp: "Doğru! İdeal Op-Amp giriş bacaklarından hiç akım çekmez (giriş empedansı R_in = ∞)." },
+    { q: " Fourier Dönüşümü zaman domainindeki bir sinyali frekans bileşenlerine ayırır.", a: true, exp: "Doğru! Sinyal işlemenin temel aracıdır." }
+  ];
+  let tfIndex = 0;
+  let tfScore = 0;
+
+  function initTrueFalseGame() {
+    tfIndex = 0;
+    tfScore = 0;
+    renderTFQuestion();
+  }
+
+  function renderTFQuestion() {
+    const container = document.getElementById('gameContent');
+    if(tfIndex >= tfQuestions.length) {
+      container.innerHTML = `
+        <div style="text-align:center; padding:30px;">
+          <h3 style="font-size:22px; color:var(--primary); margin-bottom:8px;">Tur Tamamlandı! 🎉</h3>
+          <p style="font-size:15px; color:#fff; margin-bottom:20px;">Skorun: <strong>${tfScore} / ${tfQuestions.length} Doğru</strong></p>
+          <button class="primary" onclick="initTrueFalseGame()">Yeniden Başlat</button>
+        </div>
+      `;
+      return;
+    }
+
+    const item = tfQuestions[tfIndex];
+    container.innerHTML = `
+      <div style="text-align:center; padding:20px;">
+        <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Soru ${tfIndex + 1} / ${tfQuestions.length}</div>
+        <div style="font-size:17px; font-weight:600; margin-bottom:24px; color:#fff; line-height:1.5;">"${item.q}"</div>
+        <div style="display:flex; justify-content:center; gap:16px;">
+          <button class="primary" style="padding:12px 32px; background:#10b981;" onclick="checkTF(true)">Doğru</button>
+          <button class="primary" style="padding:12px 32px; background:#ef4444;" onclick="checkTF(false)">Yanlış</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function checkTF(ans) {
+    const currentItem = tfQuestions[tfIndex];
+    if(ans === currentItem.a) {
+      tfScore++;
+      openModal("Tebrikler!", "Doğru Bildin! ✅<br><br><small style='color:var(--text-muted)'>" + currentItem.exp + "</small>", "✅");
+    } else {
+      openModal("Yanlış Cevap ❌", "<strong>Detaylı Açıklama:</strong><br>" + currentItem.exp, "❌");
+    }
+    tfIndex++;
+    renderTFQuestion();
+  }
+
+  // OYUN 3: İNTERAKTİF BİRİM EŞLEŞTİRME (OYUNLAŞTIRILMIŞ MODÜL)
+  function initUnitsGame() {
+    const unitPairs = [
+      { id: 1, text: "Kuvvet (F)", pair: 201 }, { id: 201, text: "Newton (N) [kg·m/s²]", pair: 1 },
+      { id: 2, text: "Enerji / İş (W)", pair: 202 }, { id: 202, text: "Joule (J) [N·m]", pair: 2 },
+      { id: 3, text: "Güç (P)", pair: 203 }, { id: 203, text: "Watt (W) [J/s]", pair: 3 },
+      { id: 4, text: "Elektrik Yükü (Q)", pair: 204 }, { id: 204, text: "Coulomb (C) [A·s]", pair: 4 },
+      { id: 5, text: "Elektriksel Direnç (R)", pair: 205 }, { id: 205, text: "Ohm (Ω) [V/A]", pair: 5 },
+      { id: 6, text: "Elektriksel Sığa (C)", pair: 206 }, { id: 206, text: "Farad (F) [C/V]", pair: 6 }
+    ];
+
+    let selected = [];
+    let matchedPairs = 0;
+    const container = document.getElementById('gameContent');
+    container.innerHTML = '<div style="margin-bottom:10px; font-size:13px; color:var(--text-muted);">Büyüklük - Birim Eşleşmesi: <strong id="uCount" style="color:var(--accent);">0</strong> / 6</div><div id="uGrid" class="game-grid"></div>';
+    
+    const grid = document.getElementById('uGrid');
+    [...unitPairs].sort(() => 0.5 - Math.random()).forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'game-card';
+      card.innerText = c.text;
+      card.onclick = () => {
+        if(selected.length < 2 && !card.classList.contains('selected') && !card.classList.contains('matched')) {
+          card.classList.add('selected');
+          selected.push({ elem: card, item: c });
+          
+          if(selected.length === 2) {
+            if(selected[0].item.pair === selected[1].item.id) {
+              selected[0].elem.classList.add('matched');
+              selected[1].elem.classList.add('matched');
+              selected = [];
+              matchedPairs++;
+              document.getElementById('uCount').innerText = matchedPairs;
+              if(matchedPairs === 6) {
+                setTimeout(() => openModal("Tebrikler!", "Tüm mühendislik büyüklüklerini birimleriyle tam eşleştirdin! 🎯", "🎓"), 300);
+              }
+            } else {
+              setTimeout(() => {
+                selected[0].elem.classList.remove('selected');
+                selected[1].elem.classList.remove('selected');
+                selected = [];
+              }, 600);
+            }
+          }
+        }
+      };
+      grid.appendChild(card);
+    });
+  }
+
+  /* ---------- BİLGİ HAVUZU ---------- */
+  const infoData = [
+    { title: "Yerçekimi İvmesi (g)", desc: "Dünya yüzeyinde ortalama ivme: g ≈ 9.81 m/s²" },
+    { title: "Işık Hızı (c)", desc: "Vakum ortamındaki dalga hızı: c ≈ 3 × 10⁸ m/s" },
+    { title: "Euler Sayısı (e)", desc: "Doğal logaritma tabanı: e ≈ 2.71828" },
+    { title: "Planck Sabiti (h)", desc: "Kuantum sabiti: h ≈ 6.626 × 10⁻³⁴ J·s" },
+    { title: "Avogadro Sayısı (N_A)", desc: "1 mol maddedeki tanecik sayısı: N_A ≈ 6.022 × 10²³ mol⁻¹" },
+    { title: "Ohm Yasası", desc: "Elektrik devresinde gerilim-akım bağıntısı: V = I · R" },
+    { title: "Bernoulli Denklemi", desc: "Akışkanlarda enerji korunumu: P + ½ρv² + ρgh = sabit" }
+  ];
+
+  function renderInfo() { filterInfo(); }
+
+  function filterInfo() {
+    const query = document.getElementById('infoSearch').value.toLowerCase();
+    const container = document.getElementById('infoList');
+    container.innerHTML = '';
+    
+    infoData.filter(i => i.title.toLowerCase().includes(query) || i.desc.toLowerCase().includes(query))
+      .forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'info-card';
+        div.innerHTML = `<h4>${item.title}</h4><p style="font-size:13px; color:var(--text-muted); line-height:1.4;">${item.desc}</p>`;
+        container.appendChild(div);
+      });
+  }
 
   renderSymbolRow();
   renderNotes();
