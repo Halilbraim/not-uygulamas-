@@ -1,15 +1,15 @@
-# 📝 Mühendislik Not Uygulaması
+# 📝 Masaüstü Not Uygulaması
 
-Mühendislik çalışmaları ve akademik ders notlarını düzenli tutmak amacıyla **Electron** ve **Node.js** kullanılarak geliştirilmiş masaüstü not alma uygulaması.
+Ders notlarını, günlük görevleri ve kişisel notları düzenli tutmak amacıyla **Electron** ve **Node.js** kullanılarak geliştirilmiş masaüstü not alma platformu.
 
 ---
 
 ## 🚀 Özellikler
 
-* **Masaüstü Deneyimi:** Electron ile platform bağımsız, hızlı ve akıcı arayüz.
-* **Akademik & Mühendislik Odaklı:** Ders notları, kod parçacıkları ve teknik içerikler için optimize edilmiş yapı.
-* **Gelişmiş Not Yönetimi:** Not oluşturma, düzenleme, listeleme ve kategorizasyon.
-* **Yerel Veri Saklama:** İnternet bağlantısına ihtiyaç duymadan verilerinizi cihazınızda güvenle tutma.
+* **Masaüstü Deneyimi:** Electron altyapısıyla platform bağımsız, hızlı ve akıcı arayüz.
+* **Not Yönetimi:** Not oluşturma, düzenleme, listeleme ve kategorizasyon.
+* **Yerel Veri Saklama:** İnternet bağlantısına ihtiyaç duymadan verileri cihazınızda güvenle tutma.
+* **Temiz Arayüz:** Odaklanmayı artıran basit ve kullanışlı tasarım.
 
 ---
 
@@ -23,13 +23,7 @@ Mühendislik çalışmaları ve akademik ders notlarını düzenli tutmak amacı
 
 ## 📦 Kurulum ve Çalıştırma
 
-Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyebilirsiniz:
-
-### Gereksinimler
-* [Node.js](https://nodejs.org/) (v16 veya üzeri tavsiye edilir)
-* npm (Node Package Manager)
-
-### Adımlar
+Projeyi yerel ortamınızda çalıştırmak için:
 
 1. **Depoyu klonlayın:**
    ```bash
